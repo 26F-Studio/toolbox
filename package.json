@@ -9,6 +9,7 @@
 		"postinstall": "nuxt prepare"
 	},
 	"devDependencies": {
+		"@iconify-json/ic": "^1.1.17",
 		"@nuxtjs/supabase": "^1.1.6",
 		"@supabase/supabase-js": "^2.39.7",
 		"@unocss/nuxt": "^0.58.5",
@@ -16,15 +17,15 @@
 		"@vueuse/core": "^10.8.0",
 		"color.js": "^1.2.0",
 		"echarts": "^5.5.0",
-		"naive-ui": "^2.37.3",
-		"nuxt": "^3.10.2",
-		"remeda": "^1.43.0",
+		"naive-ui": "^2.38.1",
+		"nuxt": "^3.10.3",
+		"remeda": "^1.44.1",
 		"tetrio.js": "^1.1.0",
 		"unocss": "^0.58.5",
 		"unplugin-auto-import": "^0.17.5",
 		"unplugin-vue-components": "^0.26.0",
-		"vue": "^3.4.19",
+		"vue": "^3.4.20",
 		"vue-echarts": "^6.6.9",
-		"vue-router": "^4.2.5"
+		"vue-router": "^4.3.0"
 	}
 }
