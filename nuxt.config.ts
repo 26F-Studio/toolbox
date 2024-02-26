@@ -7,6 +7,7 @@ export default defineNuxtConfig({
 	ssr: false,
 	srcDir: 'src',
 	app: {
+		baseURL: '/toolbox',
 		head: {
 			title: '方块工具箱'
 		},
