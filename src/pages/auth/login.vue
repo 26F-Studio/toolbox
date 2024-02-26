@@ -28,8 +28,10 @@ const login = async () => {
 </script>
 
 <template>
-	<n-card>
-		<n-input v-model:value="email" :disabled="waiting" placeholder="邮箱" type="text"/>
-		<n-button :disabled="waiting" :loading="waiting" class="w-full" @click="login">登录</n-button>
+	<n-card class="w-fit mx-auto">
+		<n-flex vertical>
+			<n-input v-model:value="email" :disabled="waiting" placeholder="邮箱" type="text"/>
+			<n-button :disabled="waiting" :loading="waiting" class="w-full" @click="login">登录</n-button>
+		</n-flex>
 	</n-card>
 </template>
