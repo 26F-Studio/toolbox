@@ -1,31 +1,30 @@
 name: 部署
 
 on:
-  push:
-  workflow_dispatch:
+    push:
+    workflow_dispatch:
 
 permissions:
-  pages: write
-  id-token: write
+    pages: write
+    id-token: write
 
 jobs:
-  deploy:
-    environment:
-      name: pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+    deploy:
+        environment:
+            url: ${{ steps.deployment.outputs.page_url }}
+        runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+        steps:
+            -   uses: actions/checkout@v4
+            -   uses: actions/setup-node@v4
 
-      - run: npm install --global pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm run generate
+            -   run: npm install --global pnpm
+            -   run: pnpm install --frozen-lockfile
+            -   run: pnpm run generate
 
-      - uses: actions/upload-pages-artifact@v2
-        with:
-          path: '.output/public'
+            -   uses: actions/upload-pages-artifact@v3
+                with:
+                    path: '.output/public'
 
-      - id: deployment
-        uses: actions/deploy-pages@v2
+            -   id: deployment
+                uses: actions/deploy-pages@v4
