@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { createReusableTemplate } from '@vueuse/core'
+import { breakpointsTailwind, createReusableTemplate, useBreakpoints } from '@vueuse/core'
 import { groupBy, last, pipe } from 'remeda'
 import type TetrioRank from '~/models/TetrioRank'
 
@@ -23,17 +23,32 @@ const latest = computed(() => {
 const [LimitDateViewerDefine, LimitDateViewer] = createReusableTemplate<{
 	readonly type: 'minimum' | 'maximum'
 }>()
+
+const breakpoints = useBreakpoints(breakpointsTailwind)
+
+const isMobile = computed(() => {
+	return breakpoints.isSmallerOrEqual('sm')
+})
+
+const placement = computed(() => {
+	if (isMobile.value) {
+		return 'top'
+	}
+
+	return 'left'
+})
 </script>
 
 <template>
-	<n-tabs :default-value="latest.record_at.toLocaleDateString()" class="max-h-100" placement="left" type="line">
+	<n-tabs :default-value="latest.record_at.toLocaleDateString()" :placement="placement" class="max-h-100"
+			justify-content="center" type="line">
 		<template v-for="(records, date) in group">
 			<n-tab-pane :name="date.toString()" :tab="date">
-				<n-tabs :default-value="latest.record_at.toString()" class="h-full"
-						placement="left" type="line">
+				<n-tabs :default-value="latest.record_at.toString()" :placement="placement" class="h-full"
+						justify-content="center" type="line">
 					<template v-for="record in records">
 						<n-tab-pane :name="record.record_at.toString()" :tab="record.record_at.toLocaleTimeString()">
-							<n-flex vertical>
+							<n-flex :vertical="!isMobile" align="center" justify="center">
 								<div class="fw-bold leading-tight">
 									<n-text>{{ record.require_tr.toFixed(2) }} TR</n-text>
 									<br>
