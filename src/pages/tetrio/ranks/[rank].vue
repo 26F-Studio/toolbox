@@ -36,7 +36,7 @@ tryOnBeforeMount(async () => {
 
 <template>
 	<n-flex v-if="ranks" vertical>
-		<n-card title="历史">
+		<n-card class="sm:(w-1/2 mx-auto)" title="历史">
 			<history-viewer :records="ranks"/>
 		</n-card>
 
