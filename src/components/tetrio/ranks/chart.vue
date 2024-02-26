@@ -117,7 +117,9 @@ const chart = asyncComputed(async () => {
 </script>
 
 <template>
-	<div class="mx-auto w-[80vw] h-[60vh]">
-		<v-chart :option="chart"/>
+	<div class="overflow-auto">
+		<div class="mx-auto w-500 h-250">
+			<v-chart :option="chart"/>
+		</div>
 	</div>
 </template>
