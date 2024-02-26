@@ -77,7 +77,7 @@ const menus: MenuOption[] = [
 								</n-layout-header>
 
 								<n-layout-content>
-									<div class="sm:(flex justify-center items-center) px-2 py-10">
+									<div class="px-2 py-10">
 										<NuxtPage/>
 									</div>
 								</n-layout-content>
