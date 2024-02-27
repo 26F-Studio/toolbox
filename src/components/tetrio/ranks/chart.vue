@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { asyncComputed, tryOnBeforeMount } from '@vueuse/core'
+import { asyncComputed } from '@vueuse/core'
 import { LineChart, type LineSeriesOption } from 'echarts/charts'
 import {
 	GridComponent,
@@ -41,13 +41,9 @@ use([
 	CanvasRenderer
 ])
 
-const osTheme = useOsTheme()
-
-tryOnBeforeMount(() => {
-	if (osTheme.value === 'dark') {
-		provide(THEME_KEY, 'dark')
-	}
-})
+if (useOsTheme().value === 'dark') {
+	provide(THEME_KEY, 'dark')
+}
 
 const chart = asyncComputed(async () => {
 	return {
