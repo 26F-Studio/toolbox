@@ -1,20 +1,31 @@
 <script lang="ts" setup>
-import { asyncComputed } from '@vueuse/core'
+import { asyncComputed, createReusableTemplate } from '@vueuse/core'
 import type TetrioRank from '~/models/TetrioRank'
 
-const props = defineProps<{
-	readonly record: TetrioRank
-}>()
+const props = withDefaults(
+	defineProps<{
+		readonly record: TetrioRank
+		readonly detailed?: boolean
+	}>(),
+	{
+		detailed: false
+	}
+)
 
 const color = asyncComputed(async () => {
 	return `rgba(${await props.record.color},0.5)`
 })
+
+const [LimitDateViewerDefine, LimitDateViewer] = createReusableTemplate<{
+	readonly type: string
+}>()
 </script>
 
 <template>
 	<NuxtLink :to="(`/tetrio/ranks/${record.name.toLowerCase()}`)" class="no-underline">
-		<n-card :style="{ '--color': color }"
-				class="w-100 card" size="small">
+		<n-card
+			:class="{ 'min-w-100 transition-(& duration-300) hover:(cursor-pointer scale-105) transition-transform': !detailed }"
+			:style="{ '--color': color }" class="card" size="small">
 			<n-flex align="center" justify="space-between">
 				<n-popover>
 					<template #trigger>
@@ -31,6 +42,40 @@ const color = asyncComputed(async () => {
 				</div>
 			</n-flex>
 
+			<LimitDateViewerDefine v-slot="{ type, title, detailed }">
+				<n-descriptions :column="3" bordered label-placement="top">
+					<n-descriptions-item v-for="_ in ['apm', 'pps', 'vs']" class="inline-block">
+						<template #label>
+							{{ { average: '平均', minimum: '最小', maximum: '最大' }[type] }}
+							{{ _.toUpperCase() }}
+						</template>
+
+						<n-popover v-if="(type !== 'average')">
+							<template #trigger>
+								<n-text type="info">
+									{{ record[`${type}_${_}`].toFixed(2) }}
+								</n-text>
+							</template>
+
+							<n-button :href="(`https://ch.tetr.io/u/${record[`${type}_${_}_player_id`]}`)" tag="a" text
+									  type="primary">
+								{{ record[`${type}_${_}_player_name`] }}
+							</n-button>
+						</n-popover>
+
+						<n-text v-else>
+							{{ record[`${type}_${_}`].toFixed(2) }}
+						</n-text>
+					</n-descriptions-item>
+				</n-descriptions>
+			</LimitDateViewerDefine>
+
+			<n-flex justify="center">
+				<LimitDateViewer v-if="detailed" type="average"/>
+				<LimitDateViewer v-if="detailed" type="minimum"/>
+				<LimitDateViewer v-if="detailed" type="maximum"/>
+			</n-flex>
+
 			<div class='text-center'>
 				<n-text :depth='3' class='text-lg'>{{ record.record_at.toLocaleString() }}</n-text>
 			</div>
@@ -40,8 +85,6 @@ const color = asyncComputed(async () => {
 
 <style scoped>
 .card {
-	@apply transition-(& duration-300);
 	@apply bg-[var(--color)];
-	@apply hover:(cursor-pointer scale-105) transition-transform;
 }
 </style>
