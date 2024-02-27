@@ -78,7 +78,15 @@ const menus: MenuOption[] = [
 
 								<n-layout-content>
 									<div class="px-2 py-10">
-										<NuxtPage/>
+										<Suspense>
+											<NuxtPage/>
+
+											<template #fallback>
+												<div class="mx-auto text-center">
+													<n-spin/>
+												</div>
+											</template>
+										</Suspense>
 									</div>
 								</n-layout-content>
 
