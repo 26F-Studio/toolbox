@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { tryOnBeforeMount } from '@vueuse/core'
 import { isDefined } from 'remeda'
 import HistoryViewer from '~/components/tetrio/ranks/history-viewer.vue'
 import TetrioRank from '~/models/TetrioRank'
@@ -17,26 +16,20 @@ definePageMeta({
 	}
 })
 
-const supabase = useSupabaseClient<Database>()
-const route = useRoute()
-
-const ranks = ref<TetrioRank[]>()
-
-tryOnBeforeMount(async () => {
-	ranks.value = await supabase.from('tetrio_ranks')
-		.select()
-		.eq('name', route.params.rank)
-		.then(result => {
-			return result.data?.map(record => {
-				return new TetrioRank(record)
-			})
+const ranks = await useSupabaseClient<Database>()
+	.from('tetrio_ranks')
+	.select()
+	.eq('name', useRoute().params.rank)
+	.then(result => {
+		return result.data?.map(record => {
+			return new TetrioRank(record)
 		})
-})
+	})
 </script>
 
 <template>
 	<n-flex v-if="ranks" vertical>
-		<n-card class="sm:(w-1/2 mx-auto)" title="历史">
+		<n-card class="sm:(w-3/5 mx-auto)" title="历史">
 			<history-viewer :records="ranks"/>
 		</n-card>
 
