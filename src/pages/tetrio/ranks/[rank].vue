@@ -7,7 +7,8 @@ definePageMeta({
 	validate: async route => {
 		return await useSupabaseClient<Database>()
 			.from('tetrio_ranks')
-			.select()
+			.select('name')
+			.limit(1)
 			.eq('name', route.params.rank)
 			.then(result => {
 				return isDefined(result.data) && result.data.length > 0
