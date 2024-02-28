@@ -9,6 +9,32 @@ export type Json =
 export type Database = {
 	public: {
 		Tables: {
+			tetrio_bindings: {
+				Row: {
+					id: string
+					tetrio_id: string
+					tetrio_name: string
+				}
+				Insert: {
+					id: string
+					tetrio_id: string
+					tetrio_name: string
+				}
+				Update: {
+					id?: string
+					tetrio_id?: string
+					tetrio_name?: string
+				}
+				Relationships: [
+					{
+						foreignKeyName: 'tetrio_bindings_id_fkey'
+						columns: ['id']
+						isOneToOne: true
+						referencedRelation: 'users'
+						referencedColumns: ['id']
+					}
+				]
+			}
 			tetrio_players: {
 				Row: {
 					apm: number
@@ -16,6 +42,7 @@ export type Database = {
 					id: string
 					name: string
 					pps: number
+					record_at: string
 					sprint_40l_time: number
 					tr: number
 					vs: number
@@ -26,6 +53,7 @@ export type Database = {
 					id: string
 					name: string
 					pps: number
+					record_at: string
 					sprint_40l_time: number
 					tr: number
 					vs: number
@@ -36,6 +64,7 @@ export type Database = {
 					id?: string
 					name?: string
 					pps?: number
+					record_at?: string
 					sprint_40l_time?: number
 					tr?: number
 					vs?: number
