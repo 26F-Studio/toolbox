@@ -51,7 +51,8 @@ export default defineNuxtConfig({
 		key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpcnZpaGJ3dnVkdHJ2Z25vaXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDg0MzE0NTIsImV4cCI6MjAyNDAwNzQ1Mn0.jXMvgsPbSJYp2RU7h6e8tm0Pf-_n17TBvJl2A0HeCFo',
 		redirectOptions: {
 			login: '/auth/login',
-			callback: '/auth/confirm'
+			callback: '/auth/confirm',
+			exclude: ['/', '/tetrio/ranks', '/tetrio/ranks/*']
 		}
 	}
 })
