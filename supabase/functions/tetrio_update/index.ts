@@ -1,10 +1,11 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js'
-import { filter, first, isDefined, last, pipe, sortBy, sumBy } from 'https://esm.sh/remeda'
+import { filter, first, isDefined, last, map, pipe, prop, sortBy, sumBy } from 'https://esm.sh/remeda'
+import type { Database } from '~/types/supabase'
 
 Deno.serve(async (request: Request) => {
 	const results = new Array<unknown>()
 
-	const supabase = createClient(
+	const supabase = createClient<Database>(
 		Deno.env.get('SUPABASE_URL'),
 		Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'),
 		{
@@ -146,8 +147,44 @@ Deno.serve(async (request: Request) => {
 		)
 	}
 
+	const record_ids = await supabase.from('tetrio_bindings')
+		.select('tetrio_id')
+		.then(result => {
+			if (result.data === null) {
+				return []
+			}
+
+			return map(result.data, prop('tetrio_id'))
+		})
+
+	for (const tetrio_id of record_ids) {
+		const target_player = players.find(player => player._id === tetrio_id)
+
+		if (target_player === undefined) {
+			continue
+		}
+
+		results.push(
+			await supabase.from('tetrio_players')
+				.insert({
+					id: target_player._id,
+					name: target_player.username,
+
+					tr: target_player.league.rating,
+					apm: target_player.league.apm,
+					pps: target_player.league.pps,
+					vs: target_player.league.vs,
+
+					record_at: new Date().toLocaleString()
+				})
+		)
+	}
+
 	return new Response(
-		JSON.stringify(results),
+		JSON.stringify({
+			status: 200,
+			data: results
+		}),
 		{
 			headers: {
 				'content-type': 'application/json'
