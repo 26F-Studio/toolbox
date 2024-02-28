@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { HomeOutlined, UserOutlined } from '@vicons/antd'
 import { type MenuOption } from 'naive-ui'
-import { isDefined, merge } from 'remeda'
+import { merge } from 'remeda'
 
 const user = useSupabaseUser()
 
@@ -12,7 +12,7 @@ const menus = computed<MenuOption[]>(() => {
 			children: [
 				createRouteMenuWithClassIcon('段位', 'tetrio-ranks', 'i-ic:outline-leaderboard'),
 				merge(createRouteMenu('您', 'tetrio-me', UserOutlined), {
-					disabled: !isDefined(user.value)
+					disabled: user.value === null
 				})
 			]
 		})

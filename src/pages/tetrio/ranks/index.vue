@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { groupBy, isDefined, last, mapValues, pipe, prop, sortBy } from 'remeda'
+import { groupBy, last, mapValues, pipe, prop, sortBy } from 'remeda'
 import TetrioRank from '~/models/TetrioRank'
 import type { Database } from '~/types/supabase'
 
@@ -13,7 +13,7 @@ const ranks = await useSupabaseClient<Database>()
 	})
 
 const latestRankRecord = computed(() => {
-	if (!isDefined(ranks)) {
+	if (ranks === undefined) {
 		return
 	}
 
@@ -29,7 +29,12 @@ const latestRankRecord = computed(() => {
 <template>
 	<n-flex vertical>
 		<n-flex justify='center'>
-			<tetrio-ranks-card v-for="record in latestRankRecord" :record="record"/>
+			<template v-for="record in latestRankRecord">
+				<NuxtLink :to="{ name: 'tetrio-ranks-rank', params: { rank: record.name.toLowerCase() } }"
+						  class="no-underline">
+					<tetrio-ranks-card :record="record" class="w-100 transition-transform hover:scale-105"/>
+				</NuxtLink>
+			</template>
 		</n-flex>
 
 		<tetrio-ranks-chart :records="ranks" title="TR"/>

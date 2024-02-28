@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { useMessage } from 'naive-ui'
-import { isDefined } from 'remeda'
 import { isEmpty } from 'remeda/dist/es'
 import type { Database } from '~/types/supabase'
 
@@ -17,14 +16,17 @@ const $message = useMessage()
 const login = async () => {
 	waiting.value = true
 
-	const { error } = await supabase.auth.signInWithOtp({
+	const result = await supabase.auth.signInWithOtp({
 		email: email.value,
 		options: {
 			emailRedirectTo: new URL('/toolbox/auth/confirm', location.href).toString()
 		}
 	})
 
-	if (!isDefined(error)) {
+	if (result.error !== null) {
+		$message.error('发生了一个错误, 请到控制台查看')
+		console.error(result.error)
+	} else {
 		$message.success('一封包含访问链接的邮件已经发送你到邮箱!')
 	}
 
