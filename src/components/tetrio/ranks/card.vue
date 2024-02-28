@@ -25,7 +25,7 @@ const [LimitDateViewerDefine, LimitDateViewer] = createReusableTemplate<{
 	<NuxtLink :to="(`/tetrio/ranks/${record.name.toLowerCase()}`)" class="no-underline">
 		<n-card
 			:class="{ 'min-w-100 transition-(& duration-300) hover:(cursor-pointer scale-105) transition-transform': !detailed }"
-			:style="{ '--color': color }" class="card" size="small">
+			:style="{ '--color': color }" class="bg-[var(--color)]" size="small">
 			<n-flex align="center" justify="space-between">
 				<n-popover>
 					<template #trigger>
@@ -82,9 +82,3 @@ const [LimitDateViewerDefine, LimitDateViewer] = createReusableTemplate<{
 		</n-card>
 	</NuxtLink>
 </template>
-
-<style scoped>
-.card {
-	@apply bg-[var(--color)];
-}
-</style>
