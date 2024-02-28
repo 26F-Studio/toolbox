@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { isDefined } from 'remeda'
-import HistoryViewer from '~/components/tetrio/ranks/history-viewer.vue'
 import TetrioRank from '~/models/TetrioRank'
 import type { Database } from '~/types/supabase'
 
@@ -30,7 +29,7 @@ const ranks = await useSupabaseClient<Database>()
 <template>
 	<n-flex v-if="ranks" vertical>
 		<n-card class="sm:(w-3/5 mx-auto)" title="历史">
-			<history-viewer :records="ranks"/>
+			<tetrio-ranks-history-viewer :records="ranks"/>
 		</n-card>
 
 		<tetrio-ranks-chart :records="ranks" title="TR"/>
