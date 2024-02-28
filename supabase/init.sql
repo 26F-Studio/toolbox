@@ -35,18 +35,25 @@ CREATE TABLE IF NOT EXISTS tetrio_ranks
 	record_at               timestamp   not null
 );
 
+CREATE TABLE tetrio_bindings
+(
+	id          uuid primary key not null references auth.users on delete cascade,
+
+	tetrio_id   text             not null,
+	tetrio_name text             not null
+);
+
 CREATE TABLE IF NOT EXISTS tetrio_players
 (
-	id              char(24)    not null,
-	name            varchar(16) not null,
-	tr              decimal     not null,
+	id        char(24)    not null,
+	name      varchar(16) not null,
+	tr        decimal     not null,
 
-	apm             decimal     not null,
-	pps             decimal     not null,
-	vs              decimal     not null,
+	apm       decimal     not null,
+	pps       decimal     not null,
+	vs        decimal     not null,
 
-	sprint_40l_time decimal     not null,
-	blitz_score     decimal     not null
+	record_at timestamp   not null
 );
 
 SELECT cron.schedule('1', '0 * * * *',
