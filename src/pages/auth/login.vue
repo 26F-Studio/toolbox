@@ -11,22 +11,21 @@ const available = computed(() => {
 	return !isEmpty(email.value) && !waiting.value
 })
 
+const supabase = useSupabaseClient<Database>()
 const $message = useMessage()
 
 const login = async () => {
 	waiting.value = true
 
-	const { error } = await useSupabaseClient<Database>()
-		.auth
-		.signInWithOtp({
-			email: email.value,
-			options: {
-				emailRedirectTo: new URL('/toolbox/auth/confirm', location.href).toString()
-			}
-		})
+	const { error } = await supabase.auth.signInWithOtp({
+		email: email.value,
+		options: {
+			emailRedirectTo: new URL('/toolbox/auth/confirm', location.href).toString()
+		}
+	})
 
 	if (!isDefined(error)) {
-		$message.success('一封包含登录链接的邮件已经发送你到邮箱!')
+		$message.success('一封包含访问链接的邮件已经发送你到邮箱!')
 	}
 
 	waiting.value = false
