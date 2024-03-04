@@ -26,6 +26,9 @@ devDependencies:
   color.js:
     specifier: ^1.2.0
     version: 1.2.0
+  date-fns:
+    specifier: ^3.3.1
+    version: 3.3.1
   echarts:
     specifier: ^5.5.0
     version: 5.5.0
@@ -41,6 +44,9 @@ devDependencies:
   tetrio.js:
     specifier: ^1.1.0
     version: 1.1.0
+  type-fest:
+    specifier: ^4.10.3
+    version: 4.10.3
   unocss:
     specifier: ^0.58.5
     version: 0.58.5(@unocss/webpack@0.58.5)(postcss@8.4.35)(vite@5.1.4)
@@ -3340,6 +3346,10 @@ packages:
       '@babel/runtime': 7.23.9
     dev: true
 
+  /date-fns@3.3.1:
+    resolution: {integrity: sha512-y8e109LYGgoQDveiEBD3DYXKba1jWf5BA8YU1FL5Tvm0BTdEfy54WLCwnuYWZNnzzvALy/QQ4Hov+Q9RVRv+Zw==}
+    dev: true
+
   /debug@2.6.9:
     resolution: {integrity: sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==}
     peerDependencies:
@@ -6546,6 +6556,11 @@ packages:
   /type-fest@3.13.1:
     resolution: {integrity: sha512-tLq3bSNx+xSpwvAJnzrK0Ep5CLNWjvFTOp71URMaAEWBfRb9nnJiBoUe0tF8bI4ZFO3omgBR6NvnbzVUT3Ly4g==}
     engines: {node: '>=14.16'}
+    dev: true
+
+  /type-fest@4.10.3:
+    resolution: {integrity: sha512-JLXyjizi072smKGGcZiAJDCNweT8J+AuRxmPZ1aG7TERg4ijx9REl8CNhbr36RV4qXqL1gO1FF9HL8OkVmmrsA==}
+    engines: {node: '>=16'}
     dev: true
 
   /ufo@1.4.0:

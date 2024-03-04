@@ -1,119 +1,104 @@
 <script lang="ts" setup>
 import { useMessage } from 'naive-ui'
+import { isDefined } from 'remeda'
 import { isEmpty } from 'remeda/dist/es'
+import type TetrioBind from '~/models/TetrioBind'
 import type { Database } from '~/types/supabase'
 
 const props = defineProps<{
-	readonly id?: string
-	readonly name?: string
+	readonly record?: TetrioBind
 }>()
 
-const name = ref<string>(props.name ?? '')
+const $emits = defineEmits<{
+	readonly bound: []
+}>()
+
+const name = ref(props.record?.tetrio_name)
+
+watch(() => props.record, newRecord => {
+	if (isDefined(newRecord)) {
+		name.value = newRecord.tetrio_name
+	}
+})
+
 const waiting = ref(false)
 
 const available = computed(() => {
-	return isEmpty(props.name) && !isEmpty(name.value) && !waiting.value
+	return isEmpty(props.record?.tetrio_name) && !isEmpty(name.value) && !waiting.value
 })
 
 const supabase = useSupabaseClient<Database>()
-const user = useSupabaseUser()
-
 const $message = useMessage()
 
 const save = async () => {
-	waiting.value = true
+	try {
+		waiting.value = true
 
-	if (user.value === null) {
-		$message.error('请先登录')
-		return
-	}
+		if (!isDefined(name.value)) {
+			throw createApplicationError('请输入用户名')
+		}
 
-	const already_used = await supabase.from('tetrio_bindings')
-		.select()
-		.eq('tetrio_name', name.value)
-		.then(result => {
-			if (result.error !== null) {
-				$message.error('发生了一个错误, 请到控制台查看')
-				console.error(result.error)
-			}
+		const user = await getUser()
+		const profile = await invokeTetrioProfile(name.value)
 
-			if (result.data === null) {
-				return false
-			}
+		const already_used = await supabase.from('tetrio_bindings')
+			.select()
+			.eq('tetrio_id', profile.id)
+			.limit(1)
+			.then(response => {
+				if (isDefined(response.error)) {
+					throw createApplicationError(response.error)
+				}
 
-			return result.data.length > 0
-		})
+				return isDefined(response.data) && !isEmpty(response.data)
+			})
 
-	if (already_used) {
-		$message.error('这个用户名已经被其他人绑定了')
-		return
-	}
+		if (already_used) {
+			$message.error('这个用户名已经被其他人绑定了')
+			return
+		}
 
-	const result = await supabase.functions.invoke('tetrio_profile', {
-		method: 'POST',
-		body: JSON.stringify({
-			name: name.value
-		})
-	})
-
-	if (result.error !== null) {
-		$message.error('发生了一个错误, 请到控制台查看')
-		console.error(result.error)
-	}
-
-	if (result.data !== null && 'data' in result.data) {
 		await supabase.from('tetrio_bindings')
 			.upsert({
-				id: user.value.id,
-				tetrio_id: result.data.data.id,
+				id: user.id,
+				tetrio_id: profile.id,
 				tetrio_name: name.value
 			})
-			.then(result => {
-				if (result.error !== null) {
-					$message.error('发生了一个错误, 请到控制台查看')
-					console.error(result.error)
+			.then(response => {
+				if (isDefined(response.error)) {
+					throw createApplicationError(response.error)
 				}
-			})
-	}
 
-	waiting.value = false
+				$emits('bound')
+			})
+	} finally {
+		waiting.value = false
+	}
 }
 
 const bound = computed(() => {
-	return !isEmpty(props.id) && !isEmpty(props.name)
+	return isDefined(props.record)
 })
 </script>
 
 <template>
-	<n-card class="sm:w-1/2" size="small" title="账号绑定">
-		<template v-if="!bound">
-			<n-flex :size="0" class="leading-tight" vertical>
-				<n-input v-model:value="name" :disabled="props.name !== undefined" placeholder="tetr.io 用户名"/>
-				<n-text :depth="3" class="text-sm">{{ id }}</n-text>
-			</n-flex>
-
-		</template>
-
-		<template v-else>
-			<n-flex :size="0" class="text-center leading-tight" vertical>
-				<n-text class="text-2xl fw-bold">{{ name }}</n-text>
-				<n-text :depth="3" class="text-xl fw-bold">{{ id }}</n-text>
-			</n-flex>
-		</template>
+	<n-card size="small" title="账号绑定">
+		<n-flex :size="0" class="leading-tight" vertical>
+			<n-input v-model:value="name" :disabled="bound" placeholder="tetr.io 用户名"/>
+			<n-text :depth="3" class="text-sm">{{ props.record?.tetrio_id }}</n-text>
+		</n-flex>
 
 		<template #action>
-			<n-flex justify="end">
-				<template v-if="!bound">
-					<n-button :disabled="!available" :loading="waiting" @click="save">保存</n-button>
-				</template>
+			<Transition mode="out-in" name="page">
+				<n-flex justify="end">
+					<n-button v-if="!bound" :disabled="!available" :loading="waiting" @click="save">保存</n-button>
 
-				<template v-else>
-					<n-flex :size="5" justify="end">
+					<n-flex v-else :size="5" justify="end">
 						<n-text>如需更改绑定请联系</n-text>
 						<n-button href="https://zhazha120.cn" tag="a" text type="primary">渣渣120</n-button>
 					</n-flex>
-				</template>
-			</n-flex>
+				</n-flex>
+			</Transition>
 		</template>
 	</n-card>
 </template>

@@ -1,8 +1,10 @@
 <script lang="ts" setup>
+import { isDefined } from 'remeda'
+
 const user = useSupabaseUser()
 
 watch(user, () => {
-	if (user.value !== null) {
+	if (isDefined(user.value)) {
 		return navigateTo('/')
 	}
 }, {
@@ -10,14 +12,23 @@ watch(user, () => {
 })
 
 const params = new URLSearchParams(location.search)
+
+if (params.get('error')) {
+	throw createError({
+		statusCode: 403,
+		statusMessage: params.get('error_description') ?? '未知错误'
+	})
+}
 </script>
 
 <template>
-	<template v-if="!params.has('error')">
-		<auth-confirm-waiting/>
-	</template>
+	<n-flex vertical>
+		<div class="overflow-hidden">
+			<n-result class="animate-spin" size="huge" status="404"/>
+		</div>
 
-	<template v-else>
-		<auth-confirm-error :description="params.get('error_description')"/>
-	</template>
+		<div class="text-center">
+			<n-text class="text-4xl fw-bold animate-(pulse duration-800)">登录中...</n-text>
+		</div>
+	</n-flex>
 </template>

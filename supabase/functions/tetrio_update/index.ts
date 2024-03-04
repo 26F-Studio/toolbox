@@ -2,19 +2,12 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js'
 import { filter, first, isDefined, last, map, pipe, prop, sortBy, sumBy } from 'https://esm.sh/remeda'
 import type { Database } from '~/types/supabase'
 
-Deno.serve(async (request: Request) => {
+Deno.serve(async () => {
 	const results = new Array<unknown>()
 
 	const supabase = createClient<Database>(
 		Deno.env.get('SUPABASE_URL'),
-		Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'),
-		{
-			global: {
-				headers: {
-					Authorization: request.headers.get('Authorization')
-				}
-			}
-		}
+		Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
 	)
 
 	const rank_percentiles = {

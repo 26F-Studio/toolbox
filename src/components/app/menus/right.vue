@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { LoginOutlined, LogoutOutlined, UserOutlined } from '@vicons/antd'
 import { type MenuOption } from 'naive-ui'
-import { merge } from 'remeda'
+import { isDefined, isFunction, merge } from 'remeda'
 import type { Database } from '~/types/supabase'
 
 const supabase = useSupabaseClient<Database>()
@@ -10,16 +10,19 @@ const user = useSupabaseUser()
 const logoutWaiting = ref(false)
 
 const menus = computed<MenuOption[]>(() => {
-	if (user.value !== null) {
+	if (isDefined(user.value)) {
 		return [
 			merge(createMenu(user.value.email ?? '未知', UserOutlined), {
 				children: [
 					merge(createMenu('登出', LogoutOutlined), {
 						disabled: logoutWaiting.value,
 						callback: async () => {
-							logoutWaiting.value = true
-							await supabase.auth.signOut()
-							logoutWaiting.value = false
+							try {
+								logoutWaiting.value = true
+								await supabase.auth.signOut()
+							} finally {
+								logoutWaiting.value = false
+							}
 						}
 					})
 				]
@@ -33,7 +36,7 @@ const menus = computed<MenuOption[]>(() => {
 })
 
 const handleUpdate = (_key: string, option: MenuOption) => {
-	if ('callback' in option && typeof option.callback === 'function') {
+	if ('callback' in option && isFunction(option.callback)) {
 		option.callback()
 	}
 }

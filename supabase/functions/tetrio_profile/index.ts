@@ -52,6 +52,10 @@ Deno.serve(async (request: Request) => {
 				}
 			})
 		}
+
+		return response({
+			status: 404
+		})
 	}
 
 	return response({

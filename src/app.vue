@@ -30,17 +30,31 @@ const theme = computed(() => {
 								</n-layout-header>
 
 								<n-layout-content>
-									<div class="px-2 py-10">
-										<Suspense>
-											<NuxtPage/>
+									<NuxtErrorBoundary>
+										<div class="px-2 py-10">
+											<Suspense>
+												<NuxtPage/>
 
-											<template #fallback>
-												<div class="mx-auto text-center">
-													<n-spin/>
+												<template #fallback>
+													<div class="mx-auto text-center">
+														<n-spin/>
+													</div>
+												</template>
+											</Suspense>
+										</div>
+
+										<template #error="{ error }">
+											<n-flex class="py-10" vertical>
+												<n-result status="error"/>
+
+												<div class="text-center">
+													<n-text class="text-4xl fw-bold">
+														{{ error.value.message }}
+													</n-text>
 												</div>
-											</template>
-										</Suspense>
-									</div>
+											</n-flex>
+										</template>
+									</NuxtErrorBoundary>
 								</n-layout-content>
 
 								<n-layout-footer class="p-2 text-center">

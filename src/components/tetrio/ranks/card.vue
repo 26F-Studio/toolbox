@@ -1,9 +1,14 @@
 <script lang="ts" setup>
-import { asyncComputed } from '@vueuse/core'
+import { asyncComputed, createReusableTemplate } from '@vueuse/core'
+import { isDefined } from 'remeda'
 import type TetrioRank from '~/models/TetrioRank'
 
 const props = defineProps<{
 	readonly record: TetrioRank
+}>()
+
+const [LimitDateViewerDefine, LimitDateViewer] = createReusableTemplate<{
+	readonly type: string
 }>()
 
 const color = asyncComputed(async () => {
@@ -29,7 +34,40 @@ const color = asyncComputed(async () => {
 			</div>
 		</n-flex>
 
-		<slot/>
+		<LimitDateViewerDefine v-slot="{ type, title, detailed }">
+			<n-descriptions :column="3" bordered label-placement="top">
+				<template v-for="_ in ['apm', 'pps', 'vs']">
+					<n-descriptions-item class="inline-block">
+						<template #label>
+							{{ { average: '平均', minimum: '最小', maximum: '最大' }[type] }}
+							{{ _.toUpperCase() }}
+						</template>
+
+						<n-popover
+							v-if="isDefined(record[`${type}_${_}_player_id`]) && isDefined(record[`${type}_${_}_player_name`])">
+							<template #trigger>
+								<n-text class="cursor-pointer" type="info">
+									{{ record[`${type}_${_}`].toFixed(2) }}
+								</n-text>
+							</template>
+
+							<n-button :href="(`https://ch.tetr.io/u/${record[`${type}_${_}_player_id`]}`)" tag="a"
+									  text type="primary">
+								{{ record[`${type}_${_}_player_name`] }}
+							</n-button>
+						</n-popover>
+
+						<n-text v-else>{{ record[`${type}_${_}`].toFixed(2) }}</n-text>
+					</n-descriptions-item>
+				</template>
+			</n-descriptions>
+		</LimitDateViewerDefine>
+
+		<n-flex justify="center">
+			<LimitDateViewer type="average"/>
+			<LimitDateViewer type="minimum"/>
+			<LimitDateViewer type="maximum"/>
+		</n-flex>
 
 		<div class='text-center'>
 			<n-text :depth='3' class='text-lg'>{{ record.record_at.toLocaleString() }}</n-text>

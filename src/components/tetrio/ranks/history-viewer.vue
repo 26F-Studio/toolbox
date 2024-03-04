@@ -25,9 +25,7 @@ const latestRecordDate = computed(() => {
 					<template v-for="record in records">
 						<n-tab-pane :name="record.record_at.toString()" :tab="record.record_at.toLocaleTimeString()">
 							<n-flex justify="center">
-								<tetrio-ranks-card :record="record" class="text-center">
-									<tetrio-ranks-data-viewer :record="record"/>
-								</tetrio-ranks-card>
+								<tetrio-ranks-card :record="record" class="text-center"/>
 							</n-flex>
 						</n-tab-pane>
 					</template>

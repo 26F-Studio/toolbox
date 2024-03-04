@@ -1,44 +1,107 @@
 <script lang="ts" setup>
+import { filter, first, groupBy, isDefined, isNumber, map, merge, pipe, prop, uniq } from 'remeda'
 import TetrioRank from '~/models/TetrioRank'
 import type { Database } from '~/types/supabase'
-
-definePageMeta({
-	validate: async route => {
-		return await useSupabaseClient<Database>()
-			.from('tetrio_ranks')
-			.select('name')
-			.limit(1)
-			.eq('name', route.params.rank)
-			.then(result => {
-				if (result.data === null) {
-					return false
-				}
-
-				return result.data.length > 0
-			})
-	}
-})
 
 const ranks = await useSupabaseClient<Database>()
 	.from('tetrio_ranks')
 	.select()
 	.eq('name', useRoute().params.rank)
-	.then(result => {
-		return result.data?.map(record => {
+	.then(response => {
+		if (isDefined(response.error)) {
+			throw createApplicationError(response.error)
+		}
+
+
+		return response.data?.map(record => {
 			return new TetrioRank(record)
 		})
 	})
+
+if (!isDefined(ranks) || ranks.length <= 0) {
+	throw createError({
+		statusCode: 404,
+		statusMessage: '段位不存在'
+	})
+}
+
+const createChartOption = async (type: keyof TetrioRank) => {
+	return {
+		title: {
+			text: type.toUpperCase()
+		},
+		legend: {
+			data: pipe(
+				ranks,
+				map(prop('name')),
+				uniq()
+			)
+		},
+		xAxis: {
+			type: 'category',
+			data: pipe(
+				ranks,
+				map(prop('record_at')),
+				map(date => {
+					date.setMinutes(0)
+					date.setSeconds(0)
+
+					return date.toLocaleString()
+				}),
+				uniq()
+			)
+		},
+		series: await Promise.all(
+			Object.entries(
+				groupBy(ranks, prop('name'))
+			).map(async ([name, records]) => {
+				return {
+					type: 'line',
+					name: name.toUpperCase(),
+					data: pipe(
+						records,
+						map(prop(type)),
+						filter(isNumber),
+						map(value => value.toFixed(2))
+					),
+					endLabel: {
+						show: true
+					},
+					itemStyle: {
+						color: `rgb(${await first(records)?.color})`
+					}
+				}
+			})
+		)
+	}
+}
+
+const trChartOption = merge(await createChartOption('require_tr'), {
+	title: {
+		text: 'TR'
+	}
+})
+
+const playerChartOption = merge(await createChartOption('player_count'), {
+	title: {
+		text: '玩家'
+	}
+})
 </script>
 
 <template>
-	<template v-if="ranks">
-		<n-flex vertical>
+	<Transition mode="out-in" name="page">
+		<n-flex v-if="ranks" vertical>
 			<n-card class="sm:(w-3/5 mx-auto)" title="历史">
 				<tetrio-ranks-history-viewer :records="ranks"/>
 			</n-card>
 
-			<tetrio-ranks-chart :records="ranks" title="TR"/>
-			<tetrio-ranks-chart :records="ranks" title="人数" type="player"/>
+			<n-flex justify="center">
+				<Chart :option="trChartOption" class="lg:(!w-[40vw] !h-[50vh])"/>
+				<Chart :option="playerChartOption" class="lg:(!w-[40vw] !h-[50vh])"/>
+			</n-flex>
 		</n-flex>
-	</template>
+
+		<n-empty v-else/>
+	</Transition>
 </template>

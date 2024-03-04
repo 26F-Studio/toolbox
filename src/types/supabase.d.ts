@@ -38,34 +38,28 @@ export type Database = {
 			tetrio_players: {
 				Row: {
 					apm: number
-					blitz_score: number
 					id: string
 					name: string
 					pps: number
 					record_at: string
-					sprint_40l_time: number
 					tr: number
 					vs: number
 				}
 				Insert: {
 					apm: number
-					blitz_score: number
 					id: string
 					name: string
 					pps: number
 					record_at: string
-					sprint_40l_time: number
 					tr: number
 					vs: number
 				}
 				Update: {
 					apm?: number
-					blitz_score?: number
 					id?: string
 					name?: string
 					pps?: number
 					record_at?: string
-					sprint_40l_time?: number
 					tr?: number
 					vs?: number
 				}
