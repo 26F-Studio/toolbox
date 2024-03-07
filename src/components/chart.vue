@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useWindowSize } from '@vueuse/core'
+import { useWindowSize, watchTriggerable } from '@vueuse/core'
 import { LineChart, type LineSeriesOption } from 'echarts/charts'
 import {
 	GridComponent,
@@ -40,41 +40,45 @@ if (useOsTheme().value === 'dark') {
 	provide(THEME_KEY, 'dark')
 }
 
-const option = merge({
-	title: {
-		text: '表'
-	},
-	tooltip: {
-		trigger: 'axis'
-	},
-	legend: {
-		data: []
-	},
-	toolbox: {
-		feature: {
-			saveAsImage: {}
-		}
-	},
-	xAxis: {
-		type: 'category',
-		data: []
-	},
-	yAxis: {
-		type: 'value',
-		min: 'dataMin',
-		max: 'dataMax'
-	},
-	series: []
-}, props.option)
+const option = computed(() => {
+	return merge({
+		title: {
+			text: '表'
+		},
+		tooltip: {
+			trigger: 'axis'
+		},
+		legend: {
+			data: []
+		},
+		toolbox: {
+			feature: {
+				saveAsImage: {}
+			}
+		},
+		xAxis: {
+			type: 'category',
+			data: []
+		},
+		yAxis: {
+			type: 'value',
+			min: 'dataMin',
+			max: 'dataMax'
+		},
+		series: []
+	}, props.option)
+})
 
 const version = ref(0)
 const $size = useWindowSize()
 
-watch([$size.width, $size.height], () => {
+const updater = watchTriggerable([option, $size.width, $size.height], () => {
 	version.value++
-}, {
-	immediate: true
 })
+
+setTimeout(() => {
+	updater.trigger()
+}, 500)
 </script>
 
 <template>

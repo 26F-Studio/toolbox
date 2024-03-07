@@ -12,8 +12,11 @@ const ranks = await useSupabaseClient<Database>()
 			throw createApplicationError(response.error)
 		}
 
+		if (!isDefined(response.data)) {
+			return
+		}
 
-		return response.data?.map(record => {
+		return response.data.map(record => {
 			return new TetrioRank(record)
 		})
 	})

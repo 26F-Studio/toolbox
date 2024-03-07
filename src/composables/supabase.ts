@@ -1,14 +1,4 @@
-import type { PostgrestError } from '@supabase/supabase-js'
 import { isDefined } from 'remeda'
-
-export const createApplicationError = (error: unknown) => {
-	console.error(error)
-
-	return createError({
-		statusCode: 500,
-		statusMessage: '发生了一个错误, 请到控制台查看'
-	})
-}
 
 export const getUser = async () => {
 	const user = useSupabaseUser()

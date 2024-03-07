@@ -24,7 +24,9 @@ export const createMenuWithClassIcon = (name: string, iconClass: string): MenuOp
 export const createMenuWithImageIcon = (name: string, imageSrc: string): MenuOption => {
 	return merge(createMenu(name, {}), {
 		icon: () => h(NImage, {
-			class: 'w-full h-full',
+			imgProps: {
+				class: 'w-full h-full'
+			},
 			src: imageSrc
 		})
 	})

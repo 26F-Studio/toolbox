@@ -6,7 +6,7 @@ import type TetrioBind from '~/models/TetrioBind'
 import type { Database } from '~/types/supabase'
 
 const props = defineProps<{
-	readonly record?: TetrioBind
+	readonly record: TetrioBind
 }>()
 
 const $emits = defineEmits<{

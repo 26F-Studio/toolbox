@@ -107,8 +107,8 @@ export default class TetrioRank {
 	}
 
 	get icon() {
-		const filename = this.record.name?.replaceAll('-', 'm').replaceAll('+', 'p')
-		return new URL(`/assets/ranks/${filename}.png`, import.meta.url).toString()
+		const filename = this.record.name?.replaceAll('-', 'm').replaceAll('+', 'p') ?? 'z'
+		return new URL(`/assets/images/ranks/${filename}.png`, import.meta.url).toString()
 	}
 
 	get color() {

@@ -8,6 +8,7 @@ import {
 } from 'unocss'
 
 export default defineConfig({
+	safelist: ['w-full', 'h-full'],
 	presets: [
 		presetUno(),
 		presetIcons(),
