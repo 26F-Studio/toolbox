@@ -13,15 +13,15 @@ const groupedRecords = computed(() => {
 })
 
 const latestRecordDate = computed(() => {
-	return last(props.records)!.record_at
+	return last(props.records)?.record_at
 })
 </script>
 
 <template>
-	<n-tabs :default-value="latestRecordDate.toLocaleDateString()" justify-content="center" type="line">
+	<n-tabs :default-value="latestRecordDate?.toLocaleDateString()" justify-content="center" type="line">
 		<template v-for="(records, date) in groupedRecords">
 			<n-tab-pane :name="date" :tab="date">
-				<n-tabs :default-value="latestRecordDate.toString()" justify-content="center" type="line">
+				<n-tabs :default-value="latestRecordDate?.toString()" justify-content="center" type="line">
 					<template v-for="record in records">
 						<n-tab-pane :name="record.record_at.toString()" :tab="record.record_at.toLocaleTimeString()">
 							<n-flex justify="center">
