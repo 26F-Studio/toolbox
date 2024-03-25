@@ -61,6 +61,12 @@ const handleMenuUpdate = (_key: string, option: MenuOption) => {
 		option.callback()
 	}
 }
+
+const logError = (error: unknown) => {
+	if (import.meta.env.DEV) {
+		console.error(error)
+	}
+}
 </script>
 
 <template>
@@ -86,7 +92,7 @@ const handleMenuUpdate = (_key: string, option: MenuOption) => {
 								<div class="px-2 py-10">
 									<KeepAlive>
 										<Suspense>
-											<NuxtErrorBoundary>
+											<NuxtErrorBoundary @error="logError">
 												<slot/>
 
 												<template #error="{ error, clearError }">
