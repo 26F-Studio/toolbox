@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { useMessage } from 'naive-ui'
-import { isDefined } from 'remeda'
-import { isEmpty } from 'remeda/dist/es'
+import { isEmpty, isNonNullish, isNullish } from 'remeda'
 import type TetrioBind from '~/models/TetrioBind'
 import type { Database } from '~/types/supabase'
 
@@ -16,7 +15,7 @@ const $emits = defineEmits<{
 const name = ref(props.record?.tetrio_name)
 
 watch(() => props.record, newRecord => {
-	if (isDefined(newRecord)) {
+	if (isNonNullish(newRecord)) {
 		name.value = newRecord.tetrio_name
 	}
 })
@@ -34,7 +33,7 @@ const save = async () => {
 	try {
 		waiting.value = true
 
-		if (!isDefined(name.value)) {
+		if (isNullish(name.value)) {
 			throw createApplicationError('请输入用户名')
 		}
 
@@ -46,11 +45,11 @@ const save = async () => {
 			.eq('tetrio_id', profile.id)
 			.limit(1)
 			.then(response => {
-				if (isDefined(response.error)) {
+				if (isNonNullish(response.error)) {
 					throw createApplicationError(response.error)
 				}
 
-				return isDefined(response.data) && !isEmpty(response.data)
+				return isNonNullish(response.data) && !isEmpty(response.data)
 			})
 
 		if (already_used) {
@@ -65,7 +64,7 @@ const save = async () => {
 				tetrio_name: name.value
 			})
 			.then(response => {
-				if (isDefined(response.error)) {
+				if (isNonNullish(response.error)) {
 					throw createApplicationError(response.error)
 				}
 
@@ -77,7 +76,7 @@ const save = async () => {
 }
 
 const bound = computed(() => {
-	return isDefined(props.record)
+	return isNonNullish(props.record)
 })
 </script>
 

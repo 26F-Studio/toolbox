@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { addHours } from 'date-fns'
 import type { LineSeriesOption } from 'echarts/charts'
-import { filter, first, isDefined, isNumber, map, pipe, prop, uniq } from 'remeda'
+import { filter, first, isNonNullish, isNullish, isNumber, map, pipe, prop, unique } from 'remeda'
 import { isEmpty } from 'remeda/dist/es'
 import TetrioBind from '~/models/TetrioBind'
 import TetrioRecord from '~/models/TetrioRecord'
@@ -16,18 +16,18 @@ const binding = useAsyncData(async () => {
 		.select()
 		.eq('id', user.id)
 		.then(response => {
-			if (isDefined(response.error)) {
+			if (isNonNullish(response.error)) {
 				throw createApplicationError(response.error)
 			}
 
-			if (!isDefined(response.data)) {
+			if (isNullish(response.data)) {
 				return
 			}
 
 			return first(response.data)
 		})
 		.then(record => {
-			if (!isDefined(record)) {
+			if (isNullish(record)) {
 				return
 			}
 
@@ -38,7 +38,7 @@ const binding = useAsyncData(async () => {
 })
 
 const records = useLazyAsyncData(async () => {
-	if (!isDefined(binding.data.value)) {
+	if (isNullish(binding.data.value)) {
 		return
 	}
 
@@ -46,11 +46,11 @@ const records = useLazyAsyncData(async () => {
 		.select()
 		.eq('id', binding.data.value.tetrio_id)
 		.then(response => {
-			if (isDefined(response.error)) {
+			if (isNonNullish(response.error)) {
 				throw createApplicationError(response.error)
 			}
 
-			if (!isDefined(response.data)) {
+			if (isNullish(response.data)) {
 				return
 			}
 
@@ -64,7 +64,7 @@ const records = useLazyAsyncData(async () => {
 })
 
 const createChartOption = (type: keyof TetrioRecord) => {
-	if (!isDefined(records.data.value)) {
+	if (isNullish(records.data.value)) {
 		return
 	}
 
@@ -79,7 +79,7 @@ const createChartOption = (type: keyof TetrioRecord) => {
 			data: pipe(
 				records.data.value,
 				map(prop('name')),
-				uniq()
+				unique()
 			)
 		},
 		toolbox: {
@@ -99,7 +99,7 @@ const createChartOption = (type: keyof TetrioRecord) => {
 
 					return date.toLocaleString()
 				}),
-				uniq()
+				unique()
 			)
 		},
 		yAxis: {

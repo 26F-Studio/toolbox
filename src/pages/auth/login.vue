@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { useMessage } from 'naive-ui'
-import { isDefined } from 'remeda'
-import { isEmpty } from 'remeda/dist/es'
+import { isEmpty, isNonNullish } from 'remeda'
 import type { Database } from '~/types/supabase'
 
 const waiting = ref(false)
@@ -25,7 +24,7 @@ const login = async () => {
 			}
 		})
 
-		if (isDefined(response.error)) {
+		if (isNonNullish(response.error)) {
 			throw createApplicationError(response.error)
 		}
 

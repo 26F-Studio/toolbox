@@ -1,9 +1,9 @@
-import { isDefined } from 'remeda'
+import { isNullish } from 'remeda'
 
 export const getUser = async () => {
 	const user = useSupabaseUser()
 
-	if (!isDefined(user.value)) {
+	if (isNullish(user.value)) {
 		throw createError({
 			statusCode: 401,
 			statusMessage: '请先登录'
@@ -34,7 +34,7 @@ export const invokeTetrioProfile = async (value: string) => {
 		.then(response => {
 			const result = response.data
 
-			if (!isDefined(result)) {
+			if (isNullish(result)) {
 				throw createError({
 					statusCode: 500,
 					statusMessage: '请求异常'

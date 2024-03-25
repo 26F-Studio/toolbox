@@ -2,7 +2,7 @@
 import { HomeOutlined, LoginOutlined, LogoutOutlined, UserOutlined } from '@vicons/antd'
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
 import { darkTheme, dateZhCN, lightTheme, type MenuOption, useOsTheme, zhCN } from 'naive-ui'
-import { isDefined, isFunction, merge } from 'remeda'
+import { isFunction, isNonNullish, isNullish, merge } from 'remeda'
 import type { Database } from '~/types/supabase'
 
 const osTheme = useOsTheme()
@@ -29,12 +29,12 @@ const menus = computed(() => {
 				children: [
 					createRouteMenuWithClassIcon('段位', 'tetrio-ranks', 'i-ic:outline-leaderboard'),
 					merge(createRouteMenu('您', 'tetrio-me', UserOutlined), {
-						disabled: !isDefined(user.value)
+						disabled: isNullish(user.value)
 					})
 				]
 			})
 		],
-		isDefined(user.value) ? [
+		isNonNullish(user.value) ? [
 			merge(createMenu(user.value?.email ?? '未知', UserOutlined), {
 				children: [
 					merge(createMenu('登出', LogoutOutlined), {

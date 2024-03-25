@@ -1,14 +1,24 @@
 <script lang="ts" setup>
 import { asyncComputed } from '@vueuse/core'
-import { first, groupBy, isDefined, last, map, mapValues, pipe, prop, sortBy, uniq } from 'remeda'
+import { format, setHours, setMinutes, setSeconds, subDays, subHours } from 'date-fns/fp'
+import { first, groupBy, isNonNullish, isNullish, last, map, mapValues, pipe, prop, sortBy, unique } from 'remeda'
 import TetrioRank from '~/models/TetrioRank'
 import type { Database } from '~/types/supabase'
 
 const ranks = await useSupabaseClient<Database>()
 	.from('tetrio_ranks')
 	.select()
+	.gte('record_at', pipe(
+		new Date(),
+		subDays(3),
+		setHours(0),
+		setMinutes(0),
+		setSeconds(0),
+		subHours(8),
+		format('yyyy/MM/dd HH:mm:ss')
+	))
 	.then(response => {
-		if (isDefined(response.error)) {
+		if (isNonNullish(response.error)) {
 			throw createApplicationError(response.error)
 		}
 
@@ -18,7 +28,7 @@ const ranks = await useSupabaseClient<Database>()
 	})
 
 const latestRankRecord = computed(() => {
-	if (!isDefined(ranks)) {
+	if (isNullish(ranks)) {
 		return
 	}
 
@@ -31,7 +41,7 @@ const latestRankRecord = computed(() => {
 })
 
 const chartOption = asyncComputed(async () => {
-	if (!isDefined(ranks)) {
+	if (isNullish(ranks)) {
 		return
 	}
 
@@ -43,7 +53,7 @@ const chartOption = asyncComputed(async () => {
 			data: pipe(
 				ranks,
 				map(prop('name')),
-				uniq()
+				unique()
 			)
 		},
 		xAxis: {
@@ -57,7 +67,7 @@ const chartOption = asyncComputed(async () => {
 
 					return date.toLocaleString()
 				}),
-				uniq()
+				unique()
 			)
 		},
 		series: await Promise.all(
@@ -102,7 +112,7 @@ const chartOption = asyncComputed(async () => {
 		</n-flex>
 
 		<Transition mode="out-in" name="page">
-			<Chart v-if="isDefined(chartOption)" :option="chartOption"/>
+			<Chart v-if="isNonNullish(chartOption)" :option="chartOption"/>
 			<n-spin v-else class="py-5"/>
 		</Transition>
 	</n-flex>

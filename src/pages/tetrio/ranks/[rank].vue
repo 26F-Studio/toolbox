@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { filter, first, groupBy, isDefined, isNumber, map, merge, pipe, prop, uniq } from 'remeda'
+import { filter, first, groupBy, isNonNullish, isNullish, isNumber, map, merge, pipe, prop, unique } from 'remeda'
 import TetrioRank from '~/models/TetrioRank'
 import type { Database } from '~/types/supabase'
 
@@ -8,11 +8,11 @@ const ranks = await useSupabaseClient<Database>()
 	.select()
 	.eq('name', useRoute().params.rank)
 	.then(response => {
-		if (isDefined(response.error)) {
+		if (isNonNullish(response.error)) {
 			throw createApplicationError(response.error)
 		}
 
-		if (!isDefined(response.data)) {
+		if (isNullish(response.data)) {
 			return
 		}
 
@@ -21,7 +21,7 @@ const ranks = await useSupabaseClient<Database>()
 		})
 	})
 
-if (!isDefined(ranks) || ranks.length <= 0) {
+if (isNullish(ranks) || ranks.length <= 0) {
 	throw createError({
 		statusCode: 404,
 		statusMessage: '段位不存在'
@@ -37,7 +37,7 @@ const createChartOption = async (type: keyof TetrioRank) => {
 			data: pipe(
 				ranks,
 				map(prop('name')),
-				uniq()
+				unique()
 			)
 		},
 		xAxis: {
@@ -51,7 +51,7 @@ const createChartOption = async (type: keyof TetrioRank) => {
 
 					return date.toLocaleString()
 				}),
-				uniq()
+				unique()
 			)
 		},
 		series: await Promise.all(

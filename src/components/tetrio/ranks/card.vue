@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { asyncComputed, createReusableTemplate } from '@vueuse/core'
-import { isDefined } from 'remeda'
+import { isNonNullish } from 'remeda'
 import type TetrioRank from '~/models/TetrioRank'
 
 const props = defineProps<{
@@ -44,7 +44,7 @@ const color = asyncComputed(async () => {
 						</template>
 
 						<n-popover
-							v-if="isDefined(record[`${type}_${_}_player_id`]) && isDefined(record[`${type}_${_}_player_name`])">
+							v-if="isNonNullish(record[`${type}_${_}_player_id`]) && isNonNullish(record[`${type}_${_}_player_name`])">
 							<template #trigger>
 								<n-text class="cursor-pointer" type="info">
 									{{ record[`${type}_${_}`].toFixed(2) }}

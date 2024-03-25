@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useMessage } from 'naive-ui'
-import { isDefined } from 'remeda'
+import { isNonNullish } from 'remeda'
 
 const $message = useMessage()
 const params = new URLSearchParams(location.search)
@@ -22,7 +22,7 @@ const timeout = setTimeout(() => {
 }, 1000 * 10)
 
 watch(user, () => {
-	if (isDefined(user.value)) {
+	if (isNonNullish(user.value)) {
 		clearTimeout(timeout)
 		$message.success('登录成功!')
 		navigateTo('/')
