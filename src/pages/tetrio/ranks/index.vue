@@ -1,39 +1,66 @@
 <script lang="ts" setup>
 import { asyncComputed } from '@vueuse/core'
-import { format, setHours, setMinutes, setSeconds, subDays, subHours } from 'date-fns/fp'
-import { first, groupBy, isNonNullish, isNullish, last, map, mapValues, pipe, prop, sortBy, unique } from 'remeda'
+import { format, subDays, subHours } from 'date-fns/fp'
+import {
+	first,
+	groupBy,
+	isNonNullish,
+	isNullish,
+	last,
+	map,
+	mapValues,
+	pipe,
+	piped,
+	prop,
+	sortBy,
+	unique
+} from 'remeda'
 import TetrioRank from '~/models/TetrioRank'
 import type { Database } from '~/types/supabase'
 
-const ranks = await useSupabaseClient<Database>()
-	.from('tetrio_ranks')
-	.select()
-	.gte('record_at', pipe(
+const dataQueryDateRange = ref([
+	pipe(
 		new Date(),
 		subDays(3),
-		setHours(0),
-		setMinutes(0),
-		setSeconds(0),
+		date => date.valueOf()
+	),
+	Date.now()
+])
+
+const ranks = useAsyncData(async () => {
+	const [startDate, endDate] = dataQueryDateRange.value
+
+	const processDate = piped(
 		subHours(8),
 		format('yyyy/MM/dd HH:mm:ss')
-	))
-	.then(response => {
-		if (isNonNullish(response.error)) {
-			throw createApplicationError(response.error)
-		}
+	)
 
-		return response.data?.map(record => {
-			return new TetrioRank(record)
+	return await useSupabaseClient<Database>()
+		.from('tetrio_ranks')
+		.select()
+		.gte('record_at', processDate(startDate))
+		.lte('record_at', processDate(endDate))
+		.then(response => {
+			if (isNonNullish(response.error)) {
+				throw createApplicationError(response.error)
+			}
+
+			return response.data?.map(record => {
+				return new TetrioRank(record)
+			})
 		})
-	})
+}, {
+	watch: [dataQueryDateRange],
+	immediate: true
+})
 
 const latestRankRecord = computed(() => {
-	if (isNullish(ranks)) {
+	if (isNullish(ranks.data.value)) {
 		return
 	}
 
 	return pipe(
-		ranks,
+		ranks.data.value,
 		groupBy(prop('name')),
 		mapValues(sortBy(prop('record_at'))),
 		mapValues(last())
@@ -41,7 +68,7 @@ const latestRankRecord = computed(() => {
 })
 
 const chartOption = asyncComputed(async () => {
-	if (isNullish(ranks)) {
+	if (isNullish(ranks.data.value)) {
 		return
 	}
 
@@ -51,7 +78,7 @@ const chartOption = asyncComputed(async () => {
 		},
 		legend: {
 			data: pipe(
-				ranks,
+				ranks.data.value,
 				map(prop('name')),
 				unique()
 			)
@@ -59,7 +86,7 @@ const chartOption = asyncComputed(async () => {
 		xAxis: {
 			type: 'category',
 			data: pipe(
-				ranks,
+				ranks.data.value,
 				map(prop('record_at')),
 				map(date => {
 					date.setMinutes(0)
@@ -72,7 +99,7 @@ const chartOption = asyncComputed(async () => {
 		},
 		series: await Promise.all(
 			Object.entries(
-				groupBy(ranks, prop('name'))
+				groupBy(ranks.data.value, prop('name'))
 			).map(async ([name, records]) => {
 				return {
 					type: 'line',
@@ -97,23 +124,32 @@ const chartOption = asyncComputed(async () => {
 
 <template>
 	<n-flex vertical>
-		<n-flex justify='center'>
-			<template v-for="record in latestRankRecord">
-				<NuxtLink :to="{
+		<div class="w-1/2 mx-auto">
+			<n-date-picker v-model:value="dataQueryDateRange" clearable type="datetimerange"/>
+		</div>
+
+		<template v-if="!ranks.pending.value">
+			<n-flex justify='center'>
+				<template v-for="record in latestRankRecord">
+					<NuxtLink :to="{
 					name: 'tetrio-ranks-rank',
 					params: {
 						rank: record.name.toLowerCase()
 					}
 				}" class="no-underline">
-					<tetrio-ranks-card :record="record"
-									   class="w-100 transition-transform hover:scale-105 [&_.n-descriptions]:hidden"/>
-				</NuxtLink>
-			</template>
-		</n-flex>
+						<tetrio-ranks-card :record="record"
+										   class="w-100 transition-transform hover:scale-105 [&_.n-descriptions]:hidden"/>
+					</NuxtLink>
+				</template>
+			</n-flex>
 
-		<Transition mode="out-in" name="page">
-			<Chart v-if="isNonNullish(chartOption)" :option="chartOption"/>
-			<n-spin v-else class="py-5"/>
-		</Transition>
+			<Transition mode="out-in" name="page">
+				<n-flex v-if="isNonNullish(chartOption)" vertical>
+					<Chart :option="chartOption"/>
+				</n-flex>
+			</Transition>
+		</template>
+
+		<n-spin v-else class="py-5"/>
 	</n-flex>
 </template>
