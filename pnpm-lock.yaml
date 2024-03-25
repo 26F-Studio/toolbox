@@ -59,6 +59,9 @@ devDependencies:
   unplugin-vue-components:
     specifier: ^0.26.0
     version: 0.26.0(vue@3.4.21)
+  vite:
+    specifier: ^5.2.6
+    version: 5.2.6(sass@1.72.0)
   vue:
     specifier: ^3.4.21
     version: 3.4.21
