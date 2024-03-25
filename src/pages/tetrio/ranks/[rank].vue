@@ -5,6 +5,7 @@ import {
 	filter,
 	first,
 	groupBy,
+	isEmpty,
 	isNonNullish,
 	isNullish,
 	isNumber,
@@ -154,7 +155,7 @@ tryOnMounted(async () => {
 			</div>
 
 			<template v-if="!ranks.pending.value">
-				<template v-if="isNonNullish(ranks.data.value)">
+				<template v-if="!isEmpty(ranks.data.value)">
 					<n-card class="sm:(w-3/5 mx-auto)" title="历史">
 						<tetrio-ranks-history-viewer :records="ranks.data.value"/>
 					</n-card>
