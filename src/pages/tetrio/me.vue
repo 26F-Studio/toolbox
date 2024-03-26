@@ -1,13 +1,23 @@
 <script lang="ts" setup>
 import { addHours } from 'date-fns'
+import { format, subDays, subHours } from 'date-fns/fp'
 import type { LineSeriesOption } from 'echarts/charts'
-import { filter, first, isNonNullish, isNullish, isNumber, map, pipe, prop, unique } from 'remeda'
+import { filter, first, isNonNullish, isNullish, isNumber, map, pipe, piped, prop, unique } from 'remeda'
 import { isEmpty } from 'remeda/dist/es'
 import TetrioBind from '~/models/TetrioBind'
 import TetrioRecord from '~/models/TetrioRecord'
 import type { Database } from '~/types/supabase'
 
 const supabase = useSupabaseClient<Database>()
+
+const dataQueryDateRange = ref([
+	pipe(
+		new Date(),
+		subDays(3),
+		date => date.valueOf()
+	),
+	Date.now()
+])
 
 const binding = useAsyncData(async () => {
 	const user = await getUser()
@@ -34,7 +44,7 @@ const binding = useAsyncData(async () => {
 			return new TetrioBind(record)
 		})
 }, {
-	server: false
+	immediate: true
 })
 
 const records = useLazyAsyncData(async () => {
@@ -42,8 +52,17 @@ const records = useLazyAsyncData(async () => {
 		return
 	}
 
+	const [startDate, endDate] = dataQueryDateRange.value
+
+	const processDate = piped(
+		subHours(8),
+		format('yyyy/MM/dd HH:mm:ss')
+	)
+
 	return await supabase.from('tetrio_players')
 		.select()
+		.gte('record_at', processDate(startDate))
+		.lte('record_at', processDate(endDate))
 		.eq('id', binding.data.value.tetrio_id)
 		.then(response => {
 			if (isNonNullish(response.error)) {
@@ -59,8 +78,8 @@ const records = useLazyAsyncData(async () => {
 			})
 		})
 }, {
-	server: false,
-	watch: [binding.data]
+	watch: [binding.data, dataQueryDateRange],
+	immediate: true
 })
 
 const createChartOption = (type: keyof TetrioRecord) => {
@@ -131,6 +150,10 @@ const createChartOption = (type: keyof TetrioRecord) => {
 				<tetrio-me-bound :record="binding.data.value" @bound="binding.refresh"/>
 			</n-spin>
 		</n-flex>
+
+		<div class="w-1/2 mx-auto">
+			<n-date-picker v-model:value="dataQueryDateRange" clearable type="datetimerange"/>
+		</div>
 
 		<Transition mode="out-in" name="page">
 			<template v-if="!binding.pending.value">
